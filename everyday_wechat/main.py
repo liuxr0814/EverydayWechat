@@ -5,17 +5,16 @@
 核心代码。
 """
 
-import time
-# import json
+import io
 import platform
+import threading
+import time
 import os
-# from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.schedulers.background import BackgroundScheduler
-import itchat
-from itchat.content import (
-    TEXT
-)
 
+from everyday_wechat.lib.itchat.utils import logger
+from everyday_wechat.lib import itchat
+from everyday_wechat.lib.itchat.content import *
 from everyday_wechat.utils.data_collection import (
     get_weather_info,
     get_dictum_info,
@@ -79,29 +78,81 @@ def is_online(auto_login=False):
     loginCallback = init_data
     exitCallback = exit_msg
     try:
-        for _ in range(2):  # 尝试登录 2 次。
-            if platform.system() in ('Windows', 'Darwin'):
-                itchat.auto_login(hotReload=hotReload,
-                                  loginCallback=loginCallback, exitCallback=exitCallback)
-                itchat.run(blockThread=True)
-            else:
-                # 命令行显示登录二维码。
-                itchat.auto_login(enableCmdQR=2, hotReload=hotReload, loginCallback=loginCallback,
-                                  exitCallback=exitCallback)
-                itchat.run(blockThread=True)
-            if _online():
-                print('登录成功')
-                return True
+        # for _ in range(2):  # 尝试登录 2 次。
+        #     if platform.system() in ('Windows', 'Darwin'):
+        #         itchat.auto_login(hotReload=hotReload,
+        #                           loginCallback=loginCallback, exitCallback=exitCallback)
+        #         itchat.run(blockThread=True)
+        #     else:
+        #         # 命令行显示登录二维码。
+        #         itchat.auto_login(enableCmdQR=2, hotReload=hotReload,
+        #                           qrCallback=qrCallback, loginCallback=init_data, exitCallback=exit_msg)
+        #
+        #         user_id = itchat.instance.storageClass.userName
+        #         name = itchat.instance.storageClass.nickName
+        #         logger.info("Wechat login success, user_id: {}, nickname: {}".format(user_id, name))
+        #
+        #         # start message listener
+        #         itchat.run(blockThread=True)
+        #     if _online():
+        #         print('登录成功')
+        #         return True
+
+        # 命令行显示登录二维码。
+        itchat.auto_login(enableCmdQR=2, hotReload=hotReload,
+                          qrCallback=qrCallback, loginCallback=init_data, exitCallback=exit_msg)
+
+        user_id = itchat.instance.storageClass.userName
+        name = itchat.instance.storageClass.nickName
+        logger.info("Wechat login success, user_id: {}, nickname: {}".format(user_id, name))
+
+        # start message listener
+        itchat.run(blockThread=True)
+
     except Exception as exception:  # 登录失败的错误处理。
         sex = str(exception)
         if sex == "'User'":
-            print('此微信号不能登录网页版微信，不能运行此项目。没有任何其它解决办法！可以换个号再试试。')
+            print('此微信号不能登录微信，不能运行此项目。没有任何其它解决办法！可以换个号再试试。')
         else:
             print(sex)
 
     delete_cache()  # 清理缓存数据
     print('登录失败。')
     return False
+
+
+# 可用的二维码生成接口
+# https://api.qrserver.com/v1/create-qr-code/?size=400×400&data=https://www.abc.com
+# https://api.isoyu.com/qr/?m=1&e=L&p=20&url=https://www.abc.com
+def qrCallback(uuid, status, qrcode):
+    if status == "0":
+        try:
+            from PIL import Image
+            img = Image.open(io.BytesIO(qrcode))
+            _thread = threading.Thread(target=img.show, args=("QRCode",))
+            _thread.setDaemon(True)
+            _thread.start()
+        except Exception:
+            pass
+
+        import qrcode
+
+        url = f"https://login.weixin.qq.com/l/{uuid}"
+
+        qr_api1 = "https://api.isoyu.com/qr/?m=1&e=L&p=20&url={}".format(url)
+        qr_api2 = "https://api.qrserver.com/v1/create-qr-code/?size=400×400&data={}".format(url)
+        qr_api3 = "https://api.pwmqr.com/qrcode/create/?url={}".format(url)
+        qr_api4 = "https://my.tv.sohu.com/user/a/wvideo/getQRCode.do?text={}".format(url)
+        print("You can also scan QRCode in any website below:")
+        print(qr_api3)
+        print(qr_api4)
+        print(qr_api2)
+        print(qr_api1)
+
+        qr = qrcode.QRCode(border=1)
+        qr.add_data(url)
+        qr.make(fit=True)
+        qr.print_ascii(invert=True)
 
 
 def delete_cache():
@@ -137,7 +188,7 @@ def init_alarm(alarm_dict):
     scheduler = BackgroundScheduler()
     for key, value in alarm_dict.items():
         scheduler.add_job(send_alarm_msg, 'cron', [key], hour=value['hour'],
-                          minute=value['minute'], id=key, misfire_grace_time=600, jitter=value.get("alarm_jitter",0))
+                          minute=value['minute'], id=key, misfire_grace_time=600, jitter=value.get("alarm_jitter", 0))
     scheduler.start()
 
     # print('已开启定时发送提醒功能...')

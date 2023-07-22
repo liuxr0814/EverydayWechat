@@ -30,15 +30,15 @@ def run():
 
     # 检查依赖库是否都已经安装上
     try:
-        import itchat
         import apscheduler
         import requests
         from bs4 import BeautifulSoup
-        if itchat.__version__ != '1.3.10':
-            print('当前 itchat 版本为：{} ，本项目需要 itchat 的版本为 1.3.10。请升级至最新版本！\n'
-                  '升级方法 1：pip install itchat --upgrade \n'
-                  '或者方法 2: pip install -U itchat'.format(itchat.__version__))
-            return
+        from everyday_wechat.lib import itchat
+        # if itchat.__version__ != '1.3.10':
+        #     print('当前 itchat 版本为：{} ，本项目需要 itchat 的版本为 1.3.10。请升级至最新版本！\n'
+        #           '升级方法 1：pip install itchat --upgrade \n'
+        #           '或者方法 2: pip install -U itchat'.format(itchat.__version__))
+        #     return
 
     except (ModuleNotFoundError, ImportError) as error:
         if isinstance(error, ModuleNotFoundError):

@@ -6,11 +6,12 @@ Create time: 2019-07-11 14:56
 Introduction:
 """
 
-import itchat
+
 import re
 from datetime import datetime
 from datetime import timedelta
 from importlib import import_module
+from everyday_wechat.lib import itchat
 from everyday_wechat.utils import config
 from everyday_wechat.utils.common import (
     md5_encode,

@@ -8,7 +8,7 @@ Introduction: 处理好友消息内容
 
 import time
 import random
-import itchat
+from everyday_wechat.lib import itchat
 from everyday_wechat.utils import config
 from everyday_wechat.utils.data_collection import (
     get_bot_info,
@@ -49,7 +49,7 @@ def handle_friend(msg):
         print('\n{}发来信息：{}'.format(nick_name, receive_text))
         reply_text = get_bot_info(receive_text, uuid)  # 获取自动回复
         if reply_text:  # 如内容不为空，回复消息
-            time.sleep(random.randint(1, 2))  # 休眠一秒，保安全。想更快的，可以直接注释。
+            # time.sleep(random.randint(1, 2))  # 休眠一秒，保安全。想更快的，可以直接注释。
 
             prefix = conf.get('auto_reply_prefix', '')  # 前缀
             if prefix:

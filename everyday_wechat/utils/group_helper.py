@@ -8,7 +8,7 @@ Introduction: 群消息处理
 
 import re
 from datetime import datetime
-import itchat
+from everyday_wechat.lib import itchat
 
 from everyday_wechat.utils import config
 from everyday_wechat.control.calendar.rt_calendar import get_rtcalendar

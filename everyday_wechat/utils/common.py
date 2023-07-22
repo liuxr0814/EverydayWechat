@@ -7,7 +7,7 @@ import hashlib
 import json
 
 __all__ = [
-    'FILEHELPER_MARK', 'FILEHELPER', 'SPIDER_HEADERS', 'WEEK_DICT',
+    'FILEHELPER_MARK', 'FILEHELPER', 'SPIDER_HEADERS', 'WEEK_DICT','WEEK_DICT_NUM',
     'BIRTHDAY_COMPILE', 'CONSTELLATION_NAME_LIST', 'CONSTELLATION_DATE_DICT',
     'is_json', 'md5_encode', 'get_constellation_name']
 
@@ -23,6 +23,12 @@ WEEK_DICT = {
     'Monday': '星期一', 'Tuesday': '星期二', 'Wednesday': '星期三',
     'Thursday': '星期四', 'Friday': '星期五', 'Saturday': '星期六',
     'Sunday': '星期日'
+}
+
+WEEK_DICT_NUM = {
+    1: '星期一', 2: '星期二', 3: '星期三',
+    4: '星期四', 5: '星期五', 6: '星期六',
+    7: '星期日'
 }
 
 BIRTHDAY_COMPILE = re.compile(r'[\-\s]?(0?[1-9]|1[012])[\-\/\s]+(0?[1-9]|[12][0-9]|3[01])$')
